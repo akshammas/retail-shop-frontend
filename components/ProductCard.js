@@ -25,7 +25,7 @@ export default function ProductCard({ product }) {
 
       {/* Price + Stock */}
       <div className="flex items-center justify-between mt-3">
-        <span className="text-blue-600 font-bold text-lg">
+        <span className="text-yellow-600 font-bold text-lg">
           ₹{product.price.toLocaleString()}
         </span>
         <span className={`text-xs px-2 py-1 rounded-full font-medium ${
@@ -40,7 +40,7 @@ export default function ProductCard({ product }) {
       {/* Button */}
       <Link
         href={`/products/${product.id}`}
-        className="mt-3 block text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors"
+        className="mt-3 block text-center bg-yellow-600 text-white py-2 rounded-lg hover:bg-yellow-700 text-sm font-medium transition-colors"
       >
         View Details
       </Link>

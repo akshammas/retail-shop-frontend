@@ -43,9 +43,9 @@ export default function ProductDetailClient({ product }) {
     <main className="max-w-7xl mx-auto px-4 py-8">
 
       <nav className="text-sm text-gray-500 mb-6">
-        <a href="/" className="hover:text-blue-600">Home</a>
+        <a href="/" className="hover:text-yellow-600">Home</a>
         <span className="mx-2">→</span>
-        <a href="/products" className="hover:text-blue-600">Products</a>
+        <a href="/products" className="hover:text-yellow-600">Products</a>
         <span className="mx-2">→</span>
         <span className="text-gray-900">{product.name}</span>
       </nav>
@@ -73,7 +73,7 @@ export default function ProductDetailClient({ product }) {
                   key={img.id}
                   onClick={() => setSelectedImage(index)}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? "border-blue-600" : "border-transparent"
+                    selectedImage === index ? "border-yellow-600" : "border-transparent"
                   }`}
                 >
                   <img
@@ -97,7 +97,7 @@ export default function ProductDetailClient({ product }) {
             {product.in_stock ? `In Stock (${product.quantity} left)` : "Out of Stock"}
           </span>
 
-          <p className="text-4xl font-bold text-blue-600 mt-4">
+          <p className="text-4xl font-bold text-yellow-600 mt-4">
             ₹{product.price.toLocaleString()}
           </p>
 
@@ -141,14 +141,14 @@ export default function ProductDetailClient({ product }) {
               !product.in_stock
                 ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                 : addingToCart
-                ? "bg-blue-400 text-white cursor-wait"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-yellow-400 text-white cursor-wait"
+                : "bg-yellow-600 text-white hover:bg-yellow-700"
             }`}
           >
             {!product.in_stock ? "Out of Stock" : addingToCart ? "Adding..." : "Add to Cart"}
           </button>
 
-          <a href="/products" className="mt-4 text-center text-gray-500 hover:text-blue-600 text-sm">
+          <a href="/products" className="mt-4 text-center text-gray-500 hover:text-yellow-600 text-sm">
             ← Back to Products
           </a>
         </div>

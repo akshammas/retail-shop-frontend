@@ -52,11 +52,11 @@ export default function ProductsClient({ initialProducts, categories }) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search products..."
-          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
         />
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700"
         >
           Search
         </button>
@@ -68,7 +68,7 @@ export default function ProductsClient({ initialProducts, categories }) {
           onClick={() => handleCategoryClick(null)}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
             selectedCategory === null
-              ? "bg-blue-600 text-white"
+              ? "bg-yellow-600 text-white"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
           }`}
         >
@@ -80,7 +80,7 @@ export default function ProductsClient({ initialProducts, categories }) {
             onClick={() => handleCategoryClick(cat.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               selectedCategory === cat.id
-                ? "bg-blue-600 text-white"
+                ? "bg-yellow-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
             }`}
           >
@@ -92,7 +92,7 @@ export default function ProductsClient({ initialProducts, categories }) {
       {/* Products grid */}
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-4 border-yellow-200 border-t-yellow-600 rounded-full animate-spin" />
         </div>
       ) : products.length === 0 ? (
         <div className="text-center py-20">

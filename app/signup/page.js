@@ -59,7 +59,7 @@ export default function SignupPage() {
               onChange={e => setName(e.target.value)}
               placeholder="John Doe"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
             />
           </div>
 
@@ -71,7 +71,7 @@ export default function SignupPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder="john@example.com"
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
             />
           </div>
 
@@ -84,7 +84,7 @@ export default function SignupPage() {
               placeholder="At least 8 characters"
               required
               minLength={8}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
             />
           </div>
 
@@ -92,7 +92,7 @@ export default function SignupPage() {
             type="submit"
             disabled={loading}
             className={`w-full py-3 rounded-xl font-semibold text-white transition-colors ${
-              loading ? "bg-blue-400 cursor-wait" : "bg-blue-600 hover:bg-blue-700"
+              loading ? "bg-yellow-400 cursor-wait" : "bg-yellow-600 hover:bg-yellow-700"
             }`}
           >
             {loading ? "Creating account..." : "Sign Up"}
@@ -101,7 +101,7 @@ export default function SignupPage() {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 hover:underline font-medium">
+          <Link href="/login" className="text-yellow-600 hover:underline font-medium">
             Login
           </Link>
         </p>
