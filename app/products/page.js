@@ -1,24 +1,30 @@
 // app/products/page.js
-// NO "use client"
 
-import { getProducts, getCategories } from "@/lib/api"
+import { getProducts, getProductsCount, getCategories } from "@/lib/api"
 import ProductsClient from "@/components/ProductsClient"
+
+const PAGE_SIZE = 12
 
 export default async function ProductsPage({ searchParams }) {
   const params = await searchParams
-  // ↑ in newer Next.js, searchParams is also a Promise — must await it
-  // URL /products?category=2 → params = { category: "2" }
 
   const categoryParam = params.category ? Number(params.category) : null
   const searchParam = params.search || ""
+  const pageParam = params.page ? Math.max(1, Number(params.page)) : 1
 
-  const [products, categories] = await Promise.all([
+  const filterParams = {
+    ...(categoryParam ? { category: categoryParam } : {}),
+    ...(searchParam ? { search: searchParam } : {}),
+  }
+
+  const [products, { total }, categories] = await Promise.all([
     getProducts({
-      limit: 12,
-      ...(categoryParam ? { category: categoryParam } : {}),
-      ...(searchParam ? { search: searchParam } : {})
+      limit: PAGE_SIZE,
+      skip: (pageParam - 1) * PAGE_SIZE,
+      ...filterParams,
     }),
-    getCategories()
+    getProductsCount(filterParams),
+    getCategories(),
   ])
 
   return (
@@ -27,6 +33,9 @@ export default async function ProductsPage({ searchParams }) {
       categories={categories}
       initialCategory={categoryParam}
       initialSearch={searchParam}
+      initialPage={pageParam}
+      initialTotal={total}
+      pageSize={PAGE_SIZE}
     />
   )
 }
