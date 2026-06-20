@@ -4,13 +4,25 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { authFetch } from "@/lib/api"
+import ProductCard from "@/components/home/ProductCard"
 
-export default function ProductDetailClient({ product }) {
+export default function ProductDetailClient({ product, related }) {
   const router = useRouter()
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [addingToCart, setAddingToCart] = useState(false)
-  const [cartMessage, setCartMessage] = useState(null)
+  const [selectedSize, setSelectedSize] = useState(null)
+  const [adding, setAdding] = useState(false)
+  const [buyingNow, setBuyingNow] = useState(false)
+  const [message, setMessage] = useState(null)
+
+  const sizes = product.available_sizes
+    ? product.available_sizes.split(",").map(s => s.trim()).filter(Boolean)
+    : []
+
+  const needsSize = sizes.length > 0
+  const sizeMissing = needsSize && !selectedSize
 
   async function handleAddToCart() {
     const token = localStorage.getItem("access_token")
@@ -18,140 +30,250 @@ export default function ProductDetailClient({ product }) {
       router.push("/login")
       return
     }
+    if (sizeMissing) {
+      setMessage({ type: "error", text: "Please select a size" })
+      return
+    }
 
     try {
-      setAddingToCart(true)
-      const res = await fetch("http://localhost:8000/orders/cart", {
+      setAdding(true)
+      const res = await authFetch("/orders/cart", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ product_id: product.id, quantity })
+        body: JSON.stringify({ product_id: product.id, quantity }),
       })
       if (!res.ok) throw new Error()
-      setCartMessage("Added to cart!")
-      setTimeout(() => setCartMessage(null), 3000)
+      setMessage({ type: "success", text: "Added to cart" })
+      setTimeout(() => setMessage(null), 3000)
     } catch {
-      setCartMessage("Failed to add to cart")
+      setMessage({ type: "error", text: "Failed to add to cart" })
     } finally {
-      setAddingToCart(false)
+      setAdding(false)
     }
   }
 
+  async function handleBuyNow() {
+    const token = localStorage.getItem("access_token")
+    if (!token) {
+      router.push("/login")
+      return
+    }
+    if (sizeMissing) {
+      setMessage({ type: "error", text: "Please select a size" })
+      return
+    }
+
+    try {
+      setBuyingNow(true)
+      const res = await authFetch("/orders/cart", {
+        method: "POST",
+        body: JSON.stringify({ product_id: product.id, quantity }),
+      })
+      if (!res.ok) throw new Error()
+      router.push("/checkout")
+      // ↑ goes straight to checkout, skipping the cart page entirely —
+      //   matches what you asked for: a direct "place order" path
+    } catch {
+      setMessage({ type: "error", text: "Failed to start checkout" })
+      setBuyingNow(false)
+    }
+  }
+
+  const imageUrl = product.images?.length > 0
+    ? `http://localhost:8000${product.images[selectedImage].image_url}`
+    : null
+
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
+    <main className="px-6 md:px-12 lg:px-20 py-12">
+      <div className="max-w-7xl mx-auto">
 
-      <nav className="text-sm text-gray-500 mb-6">
-        <a href="/" className="hover:text-yellow-600">Home</a>
-        <span className="mx-2">→</span>
-        <a href="/products" className="hover:text-yellow-600">Products</a>
-        <span className="mx-2">→</span>
-        <span className="text-gray-900">{product.name}</span>
-      </nav>
+        {/* Breadcrumb */}
+        <nav className="text-sm text-gray-400 mb-8">
+          <Link href="/" className="hover:text-gray-900">Home</Link>
+          <span className="mx-2">/</span>
+          <Link href="/products" className="hover:text-gray-900">Products</Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-900">{product.name}</span>
+        </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
 
-        {/* Images */}
-        <div>
-          <div className="bg-gray-100 rounded-2xl h-96 flex items-center justify-center overflow-hidden mb-4">
-            {product.images?.length > 0 ? (
-              <img
-                src={`http://localhost:8000${product.images[selectedImage].image_url}`}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="text-gray-400">No image available</div>
+          {/* ── Images ─────────────────────────── */}
+          <div>
+            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4">
+              {imageUrl ? (
+                <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  No image available
+                </div>
+              )}
+            </div>
+
+            {product.images?.length > 1 && (
+              <div className="flex gap-3">
+                {product.images.map((img, index) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setSelectedImage(index)}
+                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                      selectedImage === index ? "border-gray-900" : "border-transparent"
+                    }`}
+                  >
+                    <img
+                      src={`http://localhost:8000${img.image_url}`}
+                      alt={`View ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             )}
           </div>
 
-          {product.images?.length > 1 && (
-            <div className="flex gap-2">
-              {product.images.map((img, index) => (
+          {/* ── Info ───────────────────────────── */}
+          <div className="flex flex-col">
+
+            {product.brand && (
+              <span className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-2">
+                {product.brand}
+              </span>
+            )}
+
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+              {product.name}
+            </h1>
+
+            <span className={`mt-3 inline-block w-fit text-sm px-3 py-1 rounded-full font-medium ${
+              product.in_stock
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}>
+              {product.in_stock ? `In Stock (${product.quantity} left)` : "Out of Stock"}
+            </span>
+
+            <p className="text-3xl font-bold text-gray-900 mt-6">
+              ₹{product.price.toLocaleString()}
+            </p>
+
+            {/* About this item */}
+            {product.description && (
+              <div className="mt-8">
+                <h2 className="font-semibold text-gray-900 mb-2">About this item</h2>
+                <p className="text-gray-600 leading-relaxed">{product.description}</p>
+              </div>
+            )}
+
+            {/* Size selector */}
+            {needsSize && (
+              <div className="mt-8">
+                <h2 className="font-semibold text-gray-900 mb-3">Select Size</h2>
+                <div className="flex gap-2 flex-wrap">
+                  {sizes.map(size => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`w-12 h-12 rounded-lg border text-sm font-medium transition-colors ${
+                        selectedSize === size
+                          ? "bg-gray-900 text-white border-gray-900"
+                          : "border-gray-200 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Quantity */}
+            <div className="mt-8">
+              <h2 className="font-semibold text-gray-900 mb-3">Quantity</h2>
+              <div className="flex items-center border border-gray-200 rounded-lg w-fit overflow-hidden">
                 <button
-                  key={img.id}
-                  onClick={() => setSelectedImage(index)}
-                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? "border-yellow-600" : "border-transparent"
-                  }`}
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="px-4 py-2 hover:bg-gray-50 text-gray-600 font-medium"
                 >
-                  <img
-                    src={`http://localhost:8000${img.image_url}`}
-                    alt={`Image ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                  −
                 </button>
-              ))}
+                <span className="px-5 py-2 border-x border-gray-200 font-medium">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(q => Math.min(product.quantity, q + 1))}
+                  className="px-4 py-2 hover:bg-gray-50 text-gray-600 font-medium"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Info */}
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+            {/* Message */}
+            {message && (
+              <div className={`mt-6 px-4 py-3 rounded-lg text-sm font-medium ${
+                message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
+              }`}>
+                {message.text}
+              </div>
+            )}
 
-          <span className={`mt-2 inline-block w-fit text-sm px-3 py-1 rounded-full font-medium ${
-            product.in_stock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-          }`}>
-            {product.in_stock ? `In Stock (${product.quantity} left)` : "Out of Stock"}
-          </span>
-
-          <p className="text-4xl font-bold text-yellow-600 mt-4">
-            ₹{product.price.toLocaleString()}
-          </p>
-
-          {product.description && (
-            <p className="text-gray-600 mt-4 leading-relaxed">{product.description}</p>
-          )}
-
-          <hr className="my-6" />
-
-          <div className="flex items-center gap-4 mb-6">
-            <span className="text-gray-700 font-medium">Quantity:</span>
-            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+            {/* Buttons */}
+            <div className="mt-6 flex gap-3">
               <button
-                onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                className="px-3 py-2 hover:bg-gray-100 text-gray-600 font-bold"
+                onClick={handleAddToCart}
+                disabled={!product.in_stock || adding || buyingNow}
+                className="flex-1 py-4 rounded-full font-semibold border border-gray-900 text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                −
+                {adding ? "Adding..." : "Add to Cart"}
               </button>
-              <span className="px-4 py-2 border-x border-gray-300 font-medium">{quantity}</span>
               <button
-                onClick={() => setQuantity(q => Math.min(product.quantity, q + 1))}
-                className="px-3 py-2 hover:bg-gray-100 text-gray-600 font-bold"
+                onClick={handleBuyNow}
+                disabled={!product.in_stock || adding || buyingNow}
+                className="flex-1 py-4 rounded-full font-semibold bg-yellow-500 text-gray-900 hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                +
+                {buyingNow ? "Processing..." : "Buy Now"}
               </button>
+            </div>
+
+            {/* Specs */}
+            <div className="mt-10 border-t border-gray-100 pt-6">
+              <h2 className="font-semibold text-gray-900 mb-3">Specifications</h2>
+              <dl className="text-sm space-y-2">
+                {product.brand && (
+                  <div className="flex">
+                    <dt className="w-32 text-gray-400">Brand</dt>
+                    <dd className="text-gray-900">{product.brand}</dd>
+                  </div>
+                )}
+                {product.category_id && (
+                  <div className="flex">
+                    <dt className="w-32 text-gray-400">Category</dt>
+                    <dd className="text-gray-900 capitalize">
+                      Category #{product.category_id}
+                    </dd>
+                  </div>
+                )}
+                <div className="flex">
+                  <dt className="w-32 text-gray-400">Availability</dt>
+                  <dd className="text-gray-900">
+                    {product.in_stock ? "In stock" : "Out of stock"}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </div>
-
-          {cartMessage && (
-            <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${
-              cartMessage.includes("Failed") ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"
-            }`}>
-              {cartMessage}
-            </div>
-          )}
-
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.in_stock || addingToCart}
-            className={`w-full py-4 rounded-xl font-semibold text-lg transition-colors ${
-              !product.in_stock
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : addingToCart
-                ? "bg-yellow-400 text-white cursor-wait"
-                : "bg-yellow-600 text-white hover:bg-yellow-700"
-            }`}
-          >
-            {!product.in_stock ? "Out of Stock" : addingToCart ? "Adding..." : "Add to Cart"}
-          </button>
-
-          <a href="/products" className="mt-4 text-center text-gray-500 hover:text-yellow-600 text-sm">
-            ← Back to Products
-          </a>
         </div>
+
+        {/* ── Related products ────────────────── */}
+        {related.length > 0 && (
+          <section className="mt-24 pt-16 border-t border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">
+              You may also like
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+              {related.map(p => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   )
