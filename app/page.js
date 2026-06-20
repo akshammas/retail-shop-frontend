@@ -1,96 +1,149 @@
 // app/page.js
 
 import Link from "next/link"
-import { getFeaturedProducts, getCategories } from "@/lib/api"
-import ProductCard from "@/components/ProductCard"
+import { getFeaturedProducts, getProducts, getCategories } from "@/lib/api"
+import CategoryGrid from "@/components/home/CategoryGrid"
+import ProductGrid from "@/components/home/ProductGrid"
+import NewsletterForm from "@/components/home/NewsletterForm"
 
 export default async function Home() {
-  // fetch both on the server — instant load, no spinner
-  const [featuredProducts, categories] = await Promise.all([
+  const [trending, newArrivals, categories] = await Promise.all([
     getFeaturedProducts(),
-    getCategories()
+    getProducts({ limit: 10 }),
+    getCategories(),
   ])
+
+  // for each category, grab one in-stock product that has an image
+  const categoriesWithImages = await Promise.all(
+    categories.map(async (cat) => {
+      try {
+        const products = await getProducts({
+          category: cat.id,
+          limit: 1,
+          in_stock: true,
+        })
+        const imageUrl = products[0]?.images?.[0]?.image_url || null
+        return { ...cat, imageUrl }
+      } catch {
+        return { ...cat, imageUrl: null }
+      }
+    })
+  )
 
   return (
     <main>
-
-      {/* ── Hero Banner ─────────────────────────── */}
-      <section className="bg-gray-50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <h1 className="text-5xl font-bold text-gray-900 leading-tight">
-            Everything you need,<br />all in one place
-          </h1>
-          <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto">
-            Quality clothing, footwear, and accessories — delivered to your door.
-          </p>
-          <Link
-            href="/products"
-            className="mt-8 inline-block bg-yellow-500 text-gray-900 px-8 py-4 rounded-xl font-semibold hover:bg-yellow-600 transition-colors"
-          >
-            Shop Now
-          </Link>
+      {/* ── Hero ─────────────────────────────────── */}
+      <section className="px-6 md:px-12 lg:px-20 pt-20 md:pt-28 pb-16 md:pb-24">
+        <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl">
+            <span className="inline-block bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full mb-6">
+              New Season
+            </span>
+            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-[1.05] tracking-tight">
+              Quality essentials,
+              <br />
+              made simple.
+            </h1>
+            <p className="mt-6 text-lg md:text-xl text-gray-500 max-w-xl leading-relaxed">
+              Clothing, footwear, and accessories that last. No clutter,
+              no gimmicks — just the things you actually wear.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/products"
+                className="bg-gray-900 text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors"
+              >
+                Shop the collection
+              </Link>
+              <Link
+                href="/products"
+                className="px-8 py-4 rounded-full font-semibold text-gray-900 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                Browse categories
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Shop by Category ────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">Shop by Category</h2>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {categories.map(category => (
+      {/* ── Shop by Category ─────────────────────── */}
+      <section className="px-6 md:px-12 lg:px-20 py-20 md:py-28 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+              Shop by category
+            </h2>
             <Link
-              key={category.id}
-              href={`/products?category=${category.id}`}
-              className="group bg-gray-50 rounded-xl p-6 text-center hover:bg-yellow-50 border border-gray-100 hover:border-yellow-300 transition-colors"
+              href="/products"
+              className="hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
             >
-              <div className="w-12 h-12 bg-yellow-100 rounded-full mx-auto mb-3 flex items-center justify-center group-hover:bg-yellow-200">
-                <span className="text-yellow-700 font-bold text-lg">
-                  {category.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <p className="font-medium text-gray-900 capitalize">
-                {category.name}
-              </p>
+              View all
+              <span aria-hidden>→</span>
             </Link>
-          ))}
+          </div>
+          <CategoryGrid categories={categoriesWithImages} />
         </div>
       </section>
 
-      {/* ── Featured Products ───────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 py-16 border-t border-gray-100">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
-          <Link href="/products" className="text-yellow-700 hover:underline text-sm font-medium">
-            View all →
-          </Link>
-        </div>
-
-        {featuredProducts.length === 0 ? (
-          <p className="text-gray-400 text-center py-12">No featured products yet</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredProducts.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+      {/* ── Trending ──────────────────────────────── */}
+      <section className="px-6 md:px-12 lg:px-20 py-20 md:py-28">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                Trending now
+              </h2>
+              <p className="mt-2 text-gray-500">
+                The pieces everyone's adding to cart this week
+              </p>
+            </div>
+            <Link
+              href="/products"
+              className="hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              View all
+              <span aria-hidden>→</span>
+            </Link>
           </div>
-        )}
+          <ProductGrid products={trending} emptyLabel="No trending products yet" />
+        </div>
       </section>
 
-      {/* ── Trust badges ─────────────────────────── */}
-      <section className="bg-gray-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          <div>
-            <p className="font-semibold text-gray-900">Free Shipping</p>
-            <p className="text-sm text-gray-500 mt-1">On all orders above ₹999</p>
+      {/* ── New Arrivals ──────────────────────────── */}
+      <section className="px-6 md:px-12 lg:px-20 py-20 md:py-28 bg-gray-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                New arrivals
+              </h2>
+              <p className="mt-2 text-gray-500">Fresh additions to the catalog</p>
+            </div>
+            <Link
+              href="/products"
+              className="hidden sm:flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              View all
+              <span aria-hidden>→</span>
+            </Link>
           </div>
-          <div>
-            <p className="font-semibold text-gray-900">Secure Payments</p>
-            <p className="text-sm text-gray-500 mt-1">100% secure checkout</p>
+          <ProductGrid products={newArrivals} emptyLabel="No products yet" />
+        </div>
+      </section>
+
+      {/* ── Newsletter ────────────────────────────── */}
+      <section className="px-6 md:px-12 lg:px-20 py-20 md:py-28">
+        <div className="max-w-7xl mx-auto bg-gray-900 rounded-3xl px-8 md:px-16 py-16 flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="max-w-md text-center md:text-left">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">
+              Get early access
+            </h2>
+            <p className="mt-3 text-gray-400">
+              New drops, restock alerts, and member-only discounts — straight
+              to your inbox.
+            </p>
           </div>
-          <div>
-            <p className="font-semibold text-gray-900">Easy Returns</p>
-            <p className="text-sm text-gray-500 mt-1">7-day return policy</p>
-          </div>
+          <NewsletterForm />
         </div>
       </section>
     </main>
