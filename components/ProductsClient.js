@@ -5,7 +5,7 @@
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { getProducts, getProductsCount } from "@/lib/api"
-import ProductCard from "@/components/home/ProductCard"
+import ProductCard from "@/components/ProductCard"
 
 export default function ProductsClient({
   initialProducts,

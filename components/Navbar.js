@@ -42,6 +42,9 @@ export default function Navbar() {
               >
                 Logout
               </button>
+              <Link href="/wishlist" className="text-gray-600 hover:text-blue-600 text-sm">
+                Wishlist
+              </Link>
             </div>
           ) : (
             // logged out — show login button

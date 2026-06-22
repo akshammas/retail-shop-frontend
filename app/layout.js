@@ -1,9 +1,9 @@
-// app/layout.js
+// app/layout.js — correct, single set of imports
 
 import { Inter } from "next/font/google"
 import "./globals.css"
-import Link from "next/link"
 import { AuthProvider } from "@/components/AuthProvider"
+import { WishlistProvider } from "@/components/WishlistProvider"
 import Navbar from "@/components/Navbar"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -18,8 +18,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <Navbar />
-          {children}
+          <WishlistProvider>
+            <Navbar />
+            {children}
+          </WishlistProvider>
         </AuthProvider>
       </body>
     </html>
