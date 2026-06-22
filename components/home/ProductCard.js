@@ -14,13 +14,11 @@ export default function ProductCard({ product }) {
   async function handleQuickAdd(e) {
     e.preventDefault()
     e.stopPropagation()
-
     const token = localStorage.getItem("access_token")
     if (!token) {
       router.push("/login")
       return
     }
-
     try {
       setAdding(true)
       await authFetch("/orders/cart", {
@@ -60,6 +58,13 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
+        {/* Discount badge */}
+        {product.is_on_sale && (
+          <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+            {product.discount_percent}% OFF
+          </span>
+        )}
+
         <button
           onClick={handleQuickAdd}
           disabled={adding || !product.in_stock}
@@ -77,9 +82,22 @@ export default function ProductCard({ product }) {
       <h3 className="font-medium text-gray-900 truncate group-hover:text-gray-600 transition-colors">
         {product.name}
       </h3>
-      <p className="text-gray-900 font-semibold mt-1">
-        ₹{product.price.toLocaleString()}
-      </p>
+
+      {/* Price — crossed out original + discounted, or just regular price */}
+      {product.is_on_sale ? (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-gray-900 font-semibold">
+            ₹{product.discounted_price.toLocaleString()}
+          </span>
+          <span className="text-gray-400 text-sm line-through">
+            ₹{product.price.toLocaleString()}
+          </span>
+        </div>
+      ) : (
+        <p className="text-gray-900 font-semibold mt-1">
+          ₹{product.price.toLocaleString()}
+        </p>
+      )}
     </Link>
   )
 }

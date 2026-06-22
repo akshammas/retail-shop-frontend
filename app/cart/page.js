@@ -65,8 +65,8 @@ export default function CartPage() {
   if (authLoading || loading) return <LoadingSpinner message="Loading cart..." />
 
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
+  (sum, item) => sum + item.product.discounted_price * item.quantity,
+  0
   )
   const shipping = subtotal > 999 || subtotal === 0 ? 0 : 99
   const total = subtotal + shipping
@@ -160,7 +160,7 @@ export default function CartPage() {
                         </div>
 
                         <p className="font-semibold text-gray-900">
-                          ₹{(item.product.price * item.quantity).toLocaleString()}
+                          ₹{(item.product.discounted_price * item.quantity).toLocaleString()}
                         </p>
                       </div>
                     </div>

@@ -151,9 +151,24 @@ export default function ProductDetailClient({ product, related }) {
               {product.in_stock ? `In Stock (${product.quantity} left)` : "Out of Stock"}
             </span>
 
-            <p className="text-3xl font-bold text-gray-900 mt-6">
-              ₹{product.price.toLocaleString()}
-            </p>
+            {/* Price */}
+            {product.is_on_sale ? (
+              <div className="flex items-center gap-3 mt-6">
+                <p className="text-3xl font-bold text-gray-900">
+                  ₹{product.discounted_price.toLocaleString()}
+                </p>
+                <p className="text-lg text-gray-400 line-through">
+                  ₹{product.price.toLocaleString()}
+                </p>
+                <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                  {product.discount_percent}% OFF
+                </span>
+              </div>
+            ) : (
+              <p className="text-3xl font-bold text-gray-900 mt-6">
+                ₹{product.price.toLocaleString()}
+              </p>
+            )}
 
             {/* About this item */}
             {product.description && (
