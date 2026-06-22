@@ -51,6 +51,8 @@ export default function ProductDetailClient({ product, related }) {
     }
   }
 
+  // components/ProductDetailClient.js — replace handleBuyNow only
+
   async function handleBuyNow() {
     const token = localStorage.getItem("access_token")
     if (!token) {
@@ -62,20 +64,13 @@ export default function ProductDetailClient({ product, related }) {
       return
     }
 
-    try {
-      setBuyingNow(true)
-      const res = await authFetch("/orders/cart", {
-        method: "POST",
-        body: JSON.stringify({ product_id: product.id, quantity }),
-      })
-      if (!res.ok) throw new Error()
-      router.push("/checkout")
-      // ↑ goes straight to checkout, skipping the cart page entirely —
-      //   matches what you asked for: a direct "place order" path
-    } catch {
-      setMessage({ type: "error", text: "Failed to start checkout" })
-      setBuyingNow(false)
-    }
+    // no cart call at all — just carry the product + qty straight to checkout
+    const params = new URLSearchParams({
+      buyNow: "true",
+      productId: product.id,
+      qty: quantity,
+    })
+    router.push(`/checkout?${params.toString()}`)
   }
 
   const imageUrl = product.images?.length > 0
