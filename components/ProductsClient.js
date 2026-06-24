@@ -26,7 +26,7 @@ export default function ProductsClient({
   const [page, setPage] = useState(initialPage)
   const [total, setTotal] = useState(initialTotal)
   const [loading, setLoading] = useState(false)
-
+  const [filtersOpen, setFiltersOpen] = useState(false)
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
   function buildUrl({ category, searchTerm, pageNum }) {
@@ -127,7 +127,17 @@ export default function ProductsClient({
 
           {/* ── Sidebar ───────────────────────────── */}
           <aside className="w-full md:w-64 shrink-0">
-            <div className="md:sticky md:top-24 space-y-8">
+            {/* Mobile toggle — hidden on md+ */}
+            <button
+              onClick={() => setFiltersOpen(o => !o)}
+              className="md:hidden w-full flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3 mb-4 text-sm font-medium text-gray-700"
+            >
+              Filters
+              <span className={`transition-transform ${filtersOpen ? "rotate-180" : ""}`}>▾</span>
+            </button>
+
+            {/* Panel — always visible on md+, toggled on mobile */}
+            <div className={`md:sticky md:top-24 space-y-8 ${filtersOpen ? "block" : "hidden"} md:block`}>
 
               <form onSubmit={handleSearch}>
                 <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -200,6 +210,7 @@ export default function ProductsClient({
                   Clear all filters
                 </button>
               )}
+
             </div>
           </aside>
 
@@ -236,7 +247,7 @@ export default function ProductsClient({
 
                 {/* ── Numbered pagination ──────────── */}
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-1.5 mt-12">
+                  <div className="flex items-center justify-center gap-1.5 mt-12 overflow-x-auto px-2">
                     <button
                       onClick={() => goToPage(page - 1)}
                       disabled={page === 1}

@@ -230,29 +230,31 @@ export default function ProductDetailClient({ product, related }) {
             )}
 
             {/* Buttons */}
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={handleAddToCart}
-                disabled={!product.in_stock || adding || buyingNow}
-                className="flex-1 py-4 rounded-full font-semibold border border-gray-900 text-gray-900 hover:bg-gray-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                {adding ? "Adding..." : "Add to Cart"}
-              </button>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              {/* Add to Cart + Wishlist row */}
+              <div className="flex gap-3 flex-1">
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 min-w-0 py-4 rounded-full font-semibold border border-gray-900 text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis"
+                >
+                  {adding ? "Adding..." : "Add to Cart"}
+                </button>
+                <button
+                  onClick={handleWishlistToggle}
+                  className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center shrink-0"
+                >
+                  <HeartIcon filled={liked} />
+                </button>
+              </div>
+
+              {/* Buy Now */}
               <button
                 onClick={handleBuyNow}
-                disabled={!product.in_stock || adding || buyingNow}
-                className="flex-1 py-4 rounded-full font-semibold bg-yellow-500 text-gray-900 hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 py-4 rounded-full font-semibold bg-yellow-500 text-gray-900 whitespace-nowrap"
               >
                 {buyingNow ? "Processing..." : "Buy Now"}
               </button>
-              <button
-                onClick={handleWishlistToggle}
-                aria-label={liked ? "Remove from wishlist" : "Add to wishlist"}
-                aria-pressed={liked}
-                className="w-14 h-14 rounded-full border border-gray-200 flex items-center justify-center hover:border-gray-400 transition-colors shrink-0"
-              >
-                <HeartIcon filled={liked} />
-              </button>
+
             </div>
 
             {/* Specs */}

@@ -39,7 +39,7 @@ export default async function Home() {
             <span className="inline-block bg-yellow-100 text-yellow-800 text-sm font-semibold px-3 py-1 rounded-full mb-6">
               New Season
             </span>
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-[1.05] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-gray-900 leading-[1.05] tracking-tight">
               Quality essentials,
               <br />
               made simple.

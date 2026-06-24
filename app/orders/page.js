@@ -72,6 +72,8 @@ export default function OrdersPage() {
                   className="block border border-gray-100 rounded-2xl p-5 hover:border-gray-300 transition-colors"
                 >
                   <div className="flex items-center gap-5">
+
+                    {/* Thumbnail */}
                     <div className="w-16 h-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
                       {imageUrl ? (
                         <img src={imageUrl} alt="" className="w-full h-full object-cover" />
@@ -82,30 +84,31 @@ export default function OrdersPage() {
                       )}
                     </div>
 
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between gap-4">
-                        <p className="font-medium text-gray-900">
-                          Order #{order.id}
-                        </p>
-                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize ${
+                    {/* Details */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium text-gray-900 truncate">Order #{order.id}</p>
+                        <span className={`text-xs font-medium px-2.5 py-1 rounded-full capitalize shrink-0 ${
                           STATUS_STYLES[order.status] || "bg-gray-100 text-gray-700"
                         }`}>
                           {order.status}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {itemCount} item{itemCount === 1 ? "" : "s"}
-                        {order.created_at && (
-                          <> · {new Date(order.created_at).toLocaleDateString("en-IN", {
-                            day: "numeric", month: "short", year: "numeric",
-                          })}</>
-                        )}
-                      </p>
+                      <div className="flex items-center justify-between gap-2 mt-1">
+                        <p className="text-sm text-gray-500 truncate">
+                          {itemCount} item{itemCount === 1 ? "" : "s"}
+                          {order.created_at && (
+                            <> · {new Date(order.created_at).toLocaleDateString("en-IN", {
+                              day: "numeric", month: "short", year: "numeric",
+                            })}</>
+                          )}
+                        </p>
+                        <p className="font-semibold text-gray-900 shrink-0">
+                          ₹{order.total_amount.toLocaleString()}
+                        </p>
+                      </div>
                     </div>
 
-                    <p className="font-semibold text-gray-900">
-                      ₹{order.total_amount.toLocaleString()}
-                    </p>
                   </div>
                 </Link>
               )

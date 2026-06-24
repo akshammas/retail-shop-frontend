@@ -100,71 +100,74 @@ export default function CartPage() {
 
                 return (
                   <div
-                    key={item.id}
-                    className="flex gap-4 bg-white border border-gray-100 rounded-2xl p-4"
-                  >
-                    <Link
-                      href={`/products/${item.product_id}`}
-                      className="shrink-0 w-24 h-24 rounded-xl bg-gray-100 overflow-hidden"
+                      key={item.id}
+                      className="flex gap-4 bg-white border border-gray-100 rounded-2xl p-4"
                     >
-                      {imageUrl ? (
-                        <img src={imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                          No image
-                        </div>
-                      )}
-                    </Link>
+                      <Link
+                        href={`/products/${item.product_id}`}
+                        className="shrink-0 w-24 h-24 rounded-xl bg-gray-100 overflow-hidden"
+                      >
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={item.product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                            No image
+                          </div>
+                        )}
+                      </Link>
 
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <Link
-                            href={`/products/${item.product_id}`}
-                            className="font-medium text-gray-900 hover:text-gray-600 transition-colors"
-                          >
-                            {item.product.name}
-                          </Link>
-                          {item.product.brand && (
-                            <p className="text-xs text-gray-400 mt-0.5">{item.product.brand}</p>
-                          )}
-                        </div>
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="text-gray-400 hover:text-red-500 text-sm transition-colors"
-                        >
-                          Remove
-                        </button>
-                      </div>
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
 
-                      <div className="flex items-center justify-between mt-2">
-                        {/* Quantity stepper */}
-                        <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                        {/* Name / brand / remove */}
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <Link
+                              href={`/products/${item.product_id}`}
+                              className="font-medium text-gray-900 hover:text-gray-600 transition-colors line-clamp-2"
+                            >
+                              {item.product.name}
+                            </Link>
+                            {item.product.brand && (
+                              <p className="text-xs text-gray-400 mt-0.5 truncate">{item.product.brand}</p>
+                            )}
+                          </div>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            disabled={updatingId === item.id || item.quantity <= 1}
-                            className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 font-medium disabled:opacity-40"
+                            onClick={() => removeItem(item.id)}
+                            className="text-gray-400 hover:text-red-500 text-sm transition-colors shrink-0"
                           >
-                            −
-                          </button>
-                          <span className="px-4 py-1.5 text-sm font-medium border-x border-gray-200 min-w-[2.5rem] text-center">
-                            {updatingId === item.id ? "…" : item.quantity}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            disabled={updatingId === item.id || item.quantity >= item.product.quantity}
-                            className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 font-medium disabled:opacity-40"
-                          >
-                            +
+                            Remove
                           </button>
                         </div>
 
-                        <p className="font-semibold text-gray-900">
-                          ₹{(item.product.discounted_price * item.quantity).toLocaleString()}
-                        </p>
+                        {/* Quantity + price — stacked on mobile, inline on sm+ */}
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-2">
+                          <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              disabled={updatingId === item.id || item.quantity <= 1}
+                              className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 font-medium disabled:opacity-40"
+                            >
+                              −
+                            </button>
+                            <span className="px-4 py-1.5 text-sm font-medium border-x border-gray-200 min-w-[2.5rem] text-center">
+                              {updatingId === item.id ? "…" : item.quantity}
+                            </span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              disabled={updatingId === item.id || item.quantity >= item.product.quantity}
+                              className="px-3 py-1.5 hover:bg-gray-50 text-gray-600 font-medium disabled:opacity-40"
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          <p className="font-semibold text-gray-900">
+                            ₹{(item.product.discounted_price * item.quantity).toLocaleString()}
+                          </p>
+                        </div>
+
                       </div>
                     </div>
-                  </div>
                 )
               })}
             </div>
